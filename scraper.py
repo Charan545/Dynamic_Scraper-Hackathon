@@ -1,60 +1,18 @@
-import requests
-from bs4 import BeautifulSoup
+import feedparser
 from datetime import datetime
-from storage import store_data  # Import the storage function we made
 
+BBC_RSS_URL = "http://feeds.bbci.co.uk/news/rss.xml"
 
-USER_AGENT = "Mozilla/5.0 (compatible; HackathonScraper/1.0; +https://example.com)"
-HEADERS = {"User-Agent": USER_AGENT}
-
-def scrape_bbc_headlines(limit=15):
-    url = "https://www.bbc.com/news"
-    resp = requests.get(url, headers=HEADERS, timeout=10)
-    resp.raise_for_status()
-    soup = BeautifulSoup(resp.text, "html.parser")
-
-    items = []
-
-    # Look for headline links inside <h2> or <a> tags
-    for h in soup.select("h2 a[href^='/news']"):
-        title = h.get_text(strip=True)
-        href = h.get("href")
-        if not title or not href:
-            continue
-        if href.startswith("/"):
-            href = "https://www.bbc.com" + href
-        items.append({
-            "title": title,
-            "url": href,
+def scrape_bbc_articles(limit=10):
+    feed = feedparser.parse(BBC_RSS_URL)
+    articles = []
+    for entry in feed.entries[:limit]:
+        articles.append({
+            "title": entry.title,
+            "url": entry.link,
             "source": "BBC",
             "fetched_at": datetime.utcnow(),
-            "summary": None
+            "content": getattr(entry, 'summary', '')  # summary if content not available
         })
-        if len(items) >= limit:
-            break
-
-    # fallback if structure changes again
-    if not items:
-        for a in soup.find_all("a", href=True):
-            if "/news/" in a["href"] and a.text.strip():
-                href = a["href"]
-                if href.startswith("/"):
-                    href = "https://www.bbc.com" + href
-                items.append({
-                    "title": a.text.strip(),
-                    "url": href,
-                    "source": "BBC",
-                    "fetched_at": datetime.utcnow(),
-                    "summary": None
-                })
-                if len(items) >= limit:
-                    break
-
-    return items
-if __name__ == "__main__":
-    # Scrape BBC headlines
-    scraped_items = scrape_bbc_headlines(limit=15)
-    print(f"Scraped {len(scraped_items)} headlines.")
-
-    # Store the scraped headlines
-    store_data(scraped_items, csv_file="bbc_headlines.csv", db_file="bbc_headlines.db")
+    print(f"Scraper found {len(articles)} articles")
+    return articles

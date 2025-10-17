@@ -13,9 +13,7 @@
             --accent: #ffae00;
             --hover-color: rgba(255, 255, 255, 0.15);
         }
-
         body {
-            position: relative;
             background: url("{{ url_for('static', filename='images/bg.jpg') }}") no-repeat center center fixed;
             background-size: cover;
             color: var(--text-color);
@@ -26,9 +24,8 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            z-index: 0;
+            position: relative;
         }
-
         body::before {
             content: "";
             position: fixed;
@@ -36,11 +33,11 @@
             background: rgba(15, 17, 21, 0.75);
             z-index: -1;
         }
-
         header {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: saturate(180%) blur(15px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -48,50 +45,29 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
         }
-
-        header h1 {
-            font-weight: 600;
-            font-size: 1.8rem;
-            color: var(--accent);
-        }
-
-        .buttons {
-            display: flex;
-            gap: 0.8rem;
-        }
-
+        header h1 { font-weight: 700; font-size: 2rem; color: var(--accent); user-select: none; }
+        .buttons { display: flex; gap: 1rem; }
         .btn {
-            border: 1px solid var(--accent);
+            border: 2px solid var(--accent);
             color: var(--accent);
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
             text-decoration: none;
-            transition: 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
             background: transparent;
             cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .btn:hover:not(:disabled) {
-            background: var(--accent);
-            color: var(--bg-color);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 2rem auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.5rem;
-        }
-
+        .btn:hover:not(:disabled) { background-color: var(--accent); color: var(--bg-color); transform: translateY(-3px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .container { width: 90%; max-width: 1200px; margin: 2rem auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
         .card {
             background: var(--card-color);
             border-radius: 14px;
@@ -100,157 +76,36 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .card:hover {
-            background: var(--hover-color);
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .card a {
-            text-decoration: none;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .meta {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            margin-top: 0.4rem;
-        }
-
-        footer {
-            text-align: center;
-            font-size: 0.85rem;
-            opacity: 0.7;
-            margin-top: 3rem;
-            padding-bottom: 1rem;
-        }
-
-        /* Spinner styles */
-        .spinner {
-          border: 3px solid rgba(255, 255, 255, 0.3);
-          border-top: 3px solid var(--accent);
-          border-radius: 50%;
-          width: 18px;
-          height: 18px;
-          animation: spin 1s linear infinite;
-          display: inline-block;
-          vertical-align: middle;
-          margin-left: 8px;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        /* Toast styles */
-        .toast {
-          position: fixed;
-          bottom: 1.5rem;
-          right: 1.5rem;
-          background: var(--accent);
-          color: var(--bg-color);
-          padding: 1rem 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-          font-weight: 600;
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.3s ease;
-          z-index: 100;
-        }
-
-        .toast.show {
-          opacity: 1;
-          pointer-events: auto;
-        }
+        .card:hover { background: var(--hover-color); transform: translateY(-5px); }
+        .card a { text-decoration: none; color: var(--accent); font-weight: 600; font-size: 1.1rem; }
+        .meta { font-size: 0.85rem; opacity: 0.8; margin-top: 0.4rem; }
+        .card p { margin-top: 0.8rem; font-size: 0.95rem; opacity: 0.85; line-height: 1.5; }
+        footer { text-align: center; font-size: 0.85rem; opacity: 0.7; margin-top: 3rem; padding-bottom: 1rem; }
+        .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-top: 3px solid var(--accent); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-left: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--accent); color: var(--bg-color); padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 6px 15px rgba(0,0,0,0.3); font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 100; }
+        .toast.show { opacity: 1; pointer-events: auto; }
     </style>
 </head>
 <body>
     <header>
-    <h1>📰 Live Headlines</h1>
-    <div class="buttons">
+        <h1>📰 Live Headlines</h1>
+        <div class="buttons">
             <button id="manualScrapeBtn" class="btn">Manual Scrape</button>
             <a href="/api" class="btn">API JSON</a>
         </div>
     </header>
-
-<style>
-  header {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: saturate(180%) blur(15px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 3rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-  }
-
-  header h1 {
-    font-weight: 700;
-    font-size: 2rem;
-    color: var(--accent);
-    user-select: none;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .btn {
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    padding: 0.6rem 1.2rem;
-    border-radius: 20px;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
-    background: transparent;
-    cursor: pointer;
-    transition: 
-      background-color 0.3s ease,
-      color 0.3s ease,
-      box-shadow 0.3s ease,
-      transform 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn:hover:not(:disabled) {
-    background-color: var(--accent);
-    color: var(--bg-color);
-    box-shadow: 0 8px 20px var(--accent);
-    transform: translateY(-3px);
-  }
-
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-  }
-</style>
-
 
     <div class="container">
         {% if headlines %}
             {% for h in headlines %}
             <div class="card">
                 <a href="{{ h.url }}" target="_blank">{{ h.title }}</a>
-                <div class="meta">
-                    {{ h.source }} • {{ h.fetched_at.strftime("%Y-%m-%d %H:%M:%S") }}
-                </div>
+                <div class="meta">{{ h.source }} • {{ h.fetched_at.strftime("%Y-%m-%d %H:%M:%S") }}</div>
+                {% if h.content %}
+                <p>{{ h.content[:500] }}{% if h.content|length > 500 %}...{% endif %}</p>
+                {% endif %}
+                <a href="{{ h.url }}" target="_blank" class="btn" style="margin-top:0.5rem;">Read Full Article</a>
             </div>
             {% endfor %}
         {% else %}
@@ -264,8 +119,6 @@
 
     <script>
       const btn = document.getElementById('manualScrapeBtn');
-
-      // Create toast element
       const toast = document.createElement('div');
       toast.className = 'toast';
       toast.textContent = 'Scrape successful!';
@@ -277,27 +130,16 @@
       }
 
       btn.addEventListener('click', async () => {
-        // Disable button and add spinner
         btn.disabled = true;
         const spinner = document.createElement('span');
         spinner.className = 'spinner';
         btn.appendChild(spinner);
 
         try {
-          // Call the scrape endpoint via fetch (adjust URL if needed)
-          const response = await fetch('{{ url_for("scrape") }}', {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-          });
-
+          const response = await fetch('/scrape', { method: 'GET' });
           if (!response.ok) throw new Error('Network response was not ok');
-
-          // Show toast
           showToast();
-
-          // Reload page after a short delay to update headlines
           setTimeout(() => location.reload(), 1500);
-
         } catch (err) {
           alert('Failed to scrape: ' + err.message);
         } finally {
