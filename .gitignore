@@ -1,6 +1,31 @@
-venv/
+# Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 *.pyc
-data.db
-.env
+*.pdb
+
+# Virtualenv
+venv/
+ENV/
+env/
+
+# Flask / SQLite
+*.db
+instance/
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
 .DS_Store
+
+# Logs
+*.log
+
+# PyInstaller
+dist/
+build/
