@@ -48,6 +48,11 @@ def scrape():
     scrape_and_store()
     return {"message": "Scrape successful!"}
 
+@app.route("/article/<int:article_id>")
+def article(article_id):
+    article = News.query.get_or_404(article_id)
+    return render_template("article.html", article=article)
+
 # API endpoint
 @app.route("/api")
 def api():

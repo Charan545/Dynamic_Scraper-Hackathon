@@ -1,152 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Live Headlines | Dynamic Scraper</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-    <style>
-        :root {
-            --bg-color: #0f1115;
-            --card-color: rgba(255, 255, 255, 0.12);
-            --text-color: #eaeaea;
-            --accent: #ffae00;
-            --hover-color: rgba(255, 255, 255, 0.15);
-        }
-        body {
-            background: url("{{ url_for('static', filename='images/bg.jpg') }}") no-repeat center center fixed;
-            background-size: cover;
-            color: var(--text-color);
-            font-family: "Poppins", sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            position: relative;
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 17, 21, 0.75);
-            z-index: -1;
-        }
-        header {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: saturate(180%) blur(15px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 3rem;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
-        header h1 { font-weight: 700; font-size: 2rem; color: var(--accent); user-select: none; }
-        .buttons { display: flex; gap: 1rem; }
-        .btn {
-            border: 2px solid var(--accent);
-            color: var(--accent);
-            padding: 0.6rem 1.2rem;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 600;
-            background: transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn:hover:not(:disabled) { background-color: var(--accent); color: var(--bg-color); transform: translateY(-3px); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .container { width: 90%; max-width: 1200px; margin: 2rem auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
-        .card {
-            background: var(--card-color);
-            border-radius: 14px;
-            padding: 1.2rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .card:hover { background: var(--hover-color); transform: translateY(-5px); }
-        .card a { text-decoration: none; color: var(--accent); font-weight: 600; font-size: 1.1rem; }
-        .meta { font-size: 0.85rem; opacity: 0.8; margin-top: 0.4rem; }
-        .card p { margin-top: 0.8rem; font-size: 0.95rem; opacity: 0.85; line-height: 1.5; }
-        footer { text-align: center; font-size: 0.85rem; opacity: 0.7; margin-top: 3rem; padding-bottom: 1rem; }
-        .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-top: 3px solid var(--accent); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-left: 8px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--accent); color: var(--bg-color); padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 6px 15px rgba(0,0,0,0.3); font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 100; }
-        .toast.show { opacity: 1; pointer-events: auto; }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>📰 Live Headlines</h1>
-        <div class="buttons">
-            <button id="manualScrapeBtn" class="btn">Manual Scrape</button>
-            <a href="/api" class="btn">API JSON</a>
-        </div>
-    </header>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Headlines | Dynamic Scraper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-color: #0f1115;
+      --card-color: rgba(255, 255, 255, 0.08);
+      --text-color: #eaeaea;
+      --accent: #ffae00;
+      --hover-color: rgba(255, 255, 255, 0.15);
+    }
 
-    <div class="container">
-        {% if headlines %}
-            {% for h in headlines %}
-            <div class="card">
-                <a href="{{ h.url }}" target="_blank">{{ h.title }}</a>
-                <div class="meta">{{ h.source }} • {{ h.fetched_at.strftime("%Y-%m-%d %H:%M:%S") }}</div>
-                {% if h.content %}
-                <p>{{ h.content[:500] }}{% if h.content|length > 500 %}...{% endif %}</p>
-                {% endif %}
-                <a href="{{ h.url }}" target="_blank" class="btn" style="margin-top:0.5rem;">Read Full Article</a>
-            </div>
-            {% endfor %}
-        {% else %}
-            <p>No headlines yet. Click <b>Manual Scrape</b> to fetch some!</p>
-        {% endif %}
-    </div>
+    body {
+      background: url("{{ url_for('static', filename='images/bg.jpg') }}") no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text-color);
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+    }
 
-    <footer>
-        Built by AI&DS Muthyalu | Dynamic Scrap © 2025
-    </footer>
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom right, rgba(15, 17, 21, 0.85), rgba(15, 17, 21, 0.7));
+      z-index: -1;
+    }
 
-    <script>
-      const btn = document.getElementById('manualScrapeBtn');
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.textContent = 'Scrape successful!';
-      document.body.appendChild(toast);
+    header {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: saturate(180%) blur(15px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 3rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
 
-      function showToast() {
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
+    header h1 {
+      font-weight: 700;
+      font-size: 2rem;
+      color: var(--accent);
+      user-select: none;
+      margin: 0;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 0.6rem 1.2rem;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: var(--accent);
+      color: var(--bg-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 2.5rem auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-color);
+      border-radius: 14px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .card:hover {
+      background: var(--hover-color);
+      transform: translateY(-5px);
+    }
+
+    .card a {
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-top: 0.6rem;
+    }
+
+    .card p {
+      margin-top: 0.8rem;
+      font-size: 0.95rem;
+      opacity: 0.85;
+      line-height: 1.5;
+    }
+
+    .card .btn {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-top: 3rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--accent);
+      color: var(--bg-color);
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
       }
 
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        const spinner = document.createElement('span');
-        spinner.className = 'spinner';
-        btn.appendChild(spinner);
+      .buttons {
+        width: 100%;
+        justify-content: flex-start;
+      }
 
-        try {
-          const response = await fetch('/scrape', { method: 'GET' });
-          if (!response.ok) throw new Error('Network response was not ok');
-          showToast();
-          setTimeout(() => location.reload(), 1500);
-        } catch (err) {
-          alert('Failed to scrape: ' + err.message);
-        } finally {
-          btn.disabled = false;
-          spinner.remove();
-        }
-      });
-    </script>
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📰 Live Headlines</h1>
+    <div class="buttons">
+      <button id="manualScrapeBtn" class="btn">Manual Scrape</button>
+      <a href="/api" class="btn">API JSON</a>
+    </div>
+  </header>
+
+  <div class="container">
+    {% if headlines %}
+      {% for h in headlines %}
+      <div class="card">
+        <a href="{{ h.url }}" target="_blank">{{ h.title }}</a>
+        <div class="meta">{{ h.source }} • {{ h.fetched_at.strftime("%Y-%m-%d %H:%M:%S") }}</div>
+        {% if h.content %}
+        <p>{{ h.content[:500] }}{% if h.content|length > 500 %}...{% endif %}</p>
+        {% endif %}
+        <a href="{{ url_for('article', article_id=h.id) }}" class="btn">Read Full Article</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>No headlines yet. Click <b>Manual Scrape</b> to fetch some!</p>
+    {% endif %}
+  </div>
+
+  <footer>
+    Built by AI&DS Muthyalu😎 | Dynamic Scrap © 2025
+  </footer>
+
+  <script>
+    const btn = document.getElementById('manualScrapeBtn');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = 'Scrape successful!';
+    document.body.appendChild(toast);
+
+    function showToast() {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const spinner = document.createElement('span');
+      spinner.className = 'spinner';
+      btn.appendChild(spinner);
+
+      try {
+        const response = await fetch('/scrape', { method: 'GET' });
+        if (!response.ok) throw new Error('Network response was not ok');
+        showToast();
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        alert('Failed to scrape: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        spinner.remove();
+      }
+    });
+  </script>
 </body>
 </html>
