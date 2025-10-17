@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from storage import store_data  # Import the storage function we made
+
 
 USER_AGENT = "Mozilla/5.0 (compatible; HackathonScraper/1.0; +https://example.com)"
 HEADERS = {"User-Agent": USER_AGENT}
@@ -49,3 +51,10 @@ def scrape_bbc_headlines(limit=15):
                     break
 
     return items
+if __name__ == "__main__":
+    # Scrape BBC headlines
+    scraped_items = scrape_bbc_headlines(limit=15)
+    print(f"Scraped {len(scraped_items)} headlines.")
+
+    # Store the scraped headlines
+    store_data(scraped_items, csv_file="bbc_headlines.csv", db_file="bbc_headlines.db")
